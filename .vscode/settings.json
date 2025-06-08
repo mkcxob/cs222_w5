@@ -1,0 +1,20 @@
+{
+  "[dockercompose]": {
+    "editor.tabSize": 4
+  },
+  "[yaml]": {
+    "editor.tabSize": 4
+  },
+  "editor.insertSpaces": false,
+  "editor.tabCompletion": "off",
+  "editor.quickSuggestions": {
+    "comments": "off",
+    "strings": "off",
+    "other": "off"
+  },
+  "editor.suggestOnTriggerCharacters": false,
+  "editor.inlineSuggest.enabled": false,
+  "github.copilot.inlineSuggest.enable": false,
+  "github.copilot.enable": false,
+  "editor.codeLens": false
+}
