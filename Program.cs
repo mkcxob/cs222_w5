@@ -5,8 +5,8 @@ class Program
 {
     static void Main(string[] args)
     {
-        string filePath = "customers.xml";
-        string encryptedFilePath = "protected_customers.xml";
+        string filePath = "customer_info.xml";
+        string encryptedFilePath = "encrypted_data.xml";
 
         byte[] aesKey = GenerateRandomBytes(32);
         byte[] aesIV = GenerateRandomBytes(16);
@@ -30,7 +30,7 @@ class Program
 
         doc.Save(encryptedFilePath);
 
-        Console.WriteLine("XML file protected and saved as: " + encryptedFilePath);
+        Console.WriteLine("XML File Output To: " + encryptedFilePath);
     }
 
     static byte[] EncryptStringToBytes(string plainText, byte[] key, byte[] iv)

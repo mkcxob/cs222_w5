@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<customers>
+  <customer>
+    <name>Elena Castro</name>
+    <creditcard>2345-6789-0123-4567</creditcard>
+    <password>Welcome1!</password>
+  </customer>
+  <customer>
+    <name>Michael OBrien</name>
+    <creditcard>3456-7890-1234-5678</creditcard>
+    <password>SecureMe2@</password>
+  </customer>
+  <customer>
+    <name>Elmer Cevallos</name>
+    <creditcard>4567-8901-2345-6789</creditcard>
+    <password>NetAccess3#</password>
+  </customer>
+  <customer>
+    <name>Jared Eldridge</name>
+    <creditcard>5678-9012-3456-7890</creditcard>
+    <password>Pa55word!</password>
+  </customer>
+  <customer>
+    <name>Uche Ukeje</name>
+    <creditcard>6789-0123-4567-8901</creditcard>
+    <password>MyPassw0rd$</password>
+  </customer>
+</customers>
+
