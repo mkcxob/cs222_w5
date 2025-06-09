@@ -1,57 +1,65 @@
-﻿using System.Xml.Serialization;
-
-[XmlInclude(typeof(Circle))]
-[XmlInclude(typeof(Rectangle))]
-public abstract class Shape
-{
-    public string Color { get; set; }
-    public abstract double Area { get; }
-}
-
-public class Circle : Shape
-{
-    public double Radius { get; set; }
-    public override double Area => Math.PI * Radius * Radius;
-}
-
-public class Rectangle : Shape
-{
-    public double Height { get; set; }
-    public double Width { get; set; }
-    public override double Area => Height * Width;
-}
+﻿using System.Security.Cryptography;
+using System.Xml.Linq;
 
 class Program
 {
-	static void Main()
-	{
-		var listOfShapes = new List<Shape>
-		{
-			new Circle { Color = "Red", Radius = 2.5 },
-			new Rectangle { Color = "Blue", Height = 20.0, Width = 10.0 },
-			new Circle { Color = "Green", Radius = 8.0 },
-			new Circle { Color = "Purple", Radius = 12.3 },
-			new Rectangle { Color = "Blue", Height = 45.0, Width = 18.0 }
-		};
+    static void Main(string[] args)
+    {
+        string filePath = "customers.xml";
+        string encryptedFilePath = "protected_customers.xml";
 
-		string fileName = "shapes.xml";
-		var serializer = new XmlSerializer(typeof(List<Shape>));
+        byte[] aesKey = GenerateRandomBytes(32);
+        byte[] aesIV = GenerateRandomBytes(16);
 
-		using (var file = File.Create(fileName))
-		{
-			serializer.Serialize(file, listOfShapes);
-		}
+        XDocument doc = XDocument.Load(filePath);
 
-		List<Shape> loadedShapesXml;
-		using (var file = File.OpenRead(fileName))
-		{
-			loadedShapesXml = serializer.Deserialize(file) as List<Shape>;
-		}
+        foreach (var customer in doc.Descendants("customer"))
+        {
+            string creditCard = customer.Element("creditcard")?.Value;
+            string password = customer.Element("password")?.Value;
 
-		Console.WriteLine("Loading shapes from XML:");
-		foreach (Shape item in loadedShapesXml)
-		{
-			Console.WriteLine("{0} is {1} and has an area of {2:N2}", item.GetType().Name, item.Color, item.Area);
-		}
-	}
+            string encryptedCreditCard = Convert.ToBase64String(EncryptStringToBytes(creditCard, aesKey, aesIV));
+            customer.Element("creditcard").Value = encryptedCreditCard;
+
+            byte[] salt = GenerateRandomBytes(16);
+            byte[] hashedPassword = HashPasswordWithSalt(password, salt);
+            string passwordHashBase64 = Convert.ToBase64String(hashedPassword);
+            string saltBase64 = Convert.ToBase64String(salt);
+            customer.Element("password").Value = $"{saltBase64}:{passwordHashBase64}";
+        }
+
+        doc.Save(encryptedFilePath);
+
+        Console.WriteLine("XML file protected and saved as: " + encryptedFilePath);
+    }
+
+    static byte[] EncryptStringToBytes(string plainText, byte[] key, byte[] iv)
+    {
+        using Aes aesAlg = Aes.Create();
+        aesAlg.Key = key;
+        aesAlg.IV = iv;
+
+        using MemoryStream msEncrypt = new();
+        using CryptoStream csEncrypt = new(msEncrypt, aesAlg.CreateEncryptor(), CryptoStreamMode.Write);
+        using (StreamWriter swEncrypt = new(csEncrypt))
+        {
+            swEncrypt.Write(plainText);
+        }
+
+        return msEncrypt.ToArray();
+    }
+
+    static byte[] HashPasswordWithSalt(string password, byte[] salt)
+    {
+        using Rfc2898DeriveBytes pbkdf2 = new(password, salt, 10000, HashAlgorithmName.SHA256);
+        return pbkdf2.GetBytes(32); 
+    }
+
+    static byte[] GenerateRandomBytes(int length)
+    {
+        byte[] bytes = new byte[length];
+        using RandomNumberGenerator rng = RandomNumberGenerator.Create();
+        rng.GetBytes(bytes);
+        return bytes;
+    }
 }
